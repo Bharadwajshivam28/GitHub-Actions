@@ -13,8 +13,8 @@ jobs:
       id-token: 'write'
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
