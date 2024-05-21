@@ -18,10 +18,10 @@ jobs:
       - name: List GCP Buckets
         id: list-buckets
         run: |
-        BUCKETS=$(gcloud storage buckets list --format="value(name)")
-        if [ -z "$BUCKETS" ]; then
-          echo "No buckets found"
-        else
-          echo "Buckets found:"
-          echo "$BUCKETS"
-        fi
+          BUCKETS=$(gcloud storage buckets list --format="value(name)")
+          if [ -z "$BUCKETS" ]; then
+            echo "No buckets found"
+          else
+            echo "Buckets found:"
+            echo "$BUCKETS"
+          fi
