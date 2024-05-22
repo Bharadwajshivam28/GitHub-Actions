@@ -20,12 +20,11 @@ jobs:
       - name: Set up Docker Build Environment
         id: build-env
         run: |
-          labels=$(jq -r '.pull_request.labels[].name' <<< "${{ toJson(github.event) }}")
-          if echo "$labels" | grep -q "dev"; then
+          if [[ "${{ github.event.pull_request.labels.*.name }}" == *"dev"* ]]; then
             echo "build-env=dev" >> $GITHUB_ENV
           else
             echo "build-env=prod" >> $GITHUB_ENV
-          
+
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
         with:
