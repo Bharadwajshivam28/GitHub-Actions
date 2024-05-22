@@ -1,0 +1,19 @@
+name: Prod Workflow
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        required: true
+        type: string
+
+jobs:
+  prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Echo in Prod Job
+        run: echo "${{ inputs.message }}"

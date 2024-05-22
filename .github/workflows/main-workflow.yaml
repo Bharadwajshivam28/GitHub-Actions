@@ -1,0 +1,26 @@
+name: Main Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trigger-dev-workflow:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.workflow_type == 'dev' }}
+    steps:
+      - name: Trigger Dev Workflow
+        uses: ./.github/workflows/dev-workflow.yml
+        with:
+          message: "This is the Dev environment job"
+
+  trigger-prod-workflow:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.workflow_type == 'prod' }}
+    steps:
+      - name: Trigger Prod Workflow
+        uses: ./.github/workflows/prod-workflow.yml
+        with:
+          message: "This is the Prod environment job"
