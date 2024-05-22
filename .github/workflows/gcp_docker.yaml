@@ -17,16 +17,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Determine Build Environment
-        id: build-env
-        run: |
-          labels=$(jq -r '.pull_request.labels[].name' <<< "${{ toJson(github.event) }}")
-          echo "Labels: $labels"
-          if echo "$labels" | grep -q "dev"; then
-            echo "build_env=dev" >> $GITHUB_ENV
-          else
-            echo "build_env=prod" >> $GITHUB_ENV
-
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
         with:
@@ -37,12 +27,12 @@ jobs:
           project_id: "virtual-voyage-423511-d7"
 
       - name: Docker Build (dev)
-        if: env.build_env == 'dev'
+        if: contains(github.event.pull_request.labels.*.name, 'dev')
         run: |
           docker build -t "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev" .
 
       - name: Docker Push (dev image on pull request with dev label)
-        if: env.build_env == 'dev'
+        if: contains(github.event.pull_request.labels.*.name, 'dev')
         run: |
           docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev"
 
