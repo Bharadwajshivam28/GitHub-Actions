@@ -1,26 +1,26 @@
-name: Pull Request Pipeline
+# name: Pull Request Pipeline
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened, closed]
 
-jobs:
-  dev:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+# jobs:
+#   dev:
+#     if: github.event_name == 'pull_request' && github.event.action != 'closed'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
 
-      - name: Echo in Dev Job
-        run: echo "Pushing code to Dev environment"
+#       - name: Echo in Dev Job
+#         run: echo "Pushing code to Dev environment"
 
-  prod:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+#   prod:
+#     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
         
-      - name: Echo in Prod Job
-        run: echo "Promoting code to Prod environment"
+#       - name: Echo in Prod Job
+#         run: echo "Promoting code to Prod environment"

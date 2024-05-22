@@ -1,0 +1,56 @@
+name: Pipeline to Push Docker Images with Branch and Label Conditions
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      packages: write  # Commented out for now
+      registry: write   # Commented out for now
+      id-token: 'write'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Determine Build Environment (dev or prod)
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.event.pull_request?.labels?.nodes?.some(label => label.name === 'dev') ? 'dev' : 'prod'
+        id: build-env
+
+      - name: Authenticate with Google Cloud (if WIF not used)
+        uses: google-github-actions/auth@v1  # Remove if using WIF
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.WIP }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: 300s
+          project_id: "virtual-voyage-423511-d7"
+
+      - name: Docker Build (dev)
+        run: |
+          docker build -t "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev" .
+        if: ${{ steps.build-env.outputs.build-env == 'dev' }}
+
+      - name: Docker Build (prod)
+        run: |
+          docker build -t "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/prod" .
+        if: ${{ steps.build-env.outputs.build-env == 'prod' || github.event.type == 'push' && github.base_ref == 'main' }}
+
+      - name: Docker Push (dev image on pull request with dev label)
+        run: |
+          docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev"
+        if: ${{ steps.build-env.outputs.build-env == 'dev' }}
+
+      - name: Docker Push (prod image on merge to main or push to main)
+        run: |
+          docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/prod"
+        if: ${{ steps.build-env.outputs.build-env == 'prod' || github.event.type == 'push' && github.base_ref == 'main' }}

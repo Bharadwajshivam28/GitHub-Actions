@@ -1,37 +1,37 @@
-name: Pipeline to list GCP buckets
+# name: Pipeline to list GCP buckets
 
 # on:
 #   push:
 #     branches:
 #       - main
 
-jobs:
-  copy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+# jobs:
+#   copy:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: 'read'
+#       id-token: 'write'
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
 
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          token_format: access_token
-          workload_identity_provider: ${{ secrets.WIP }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT }}
-          access_token_lifetime: 300s
-          project_id: "virtual-voyage-423511-d7"
+#       - name: Authenticate with Google Cloud
+#         uses: google-github-actions/auth@v1
+#         with:
+#           token_format: access_token
+#           workload_identity_provider: ${{ secrets.WIP }}
+#           service_account: ${{ secrets.SERVICE_ACCOUNT }}
+#           access_token_lifetime: 300s
+#           project_id: "virtual-voyage-423511-d7"
 
-      - name: List GCP Buckets
-        id: list-buckets
-        run: |
-          BUCKETS=$(gcloud storage buckets list --format="value(name)")
-          if [ -z "$BUCKETS" ]; then
-            echo "No buckets found"
-          else
-            echo "Buckets found:"
-            echo "$BUCKETS"
-          fi
+#       - name: List GCP Buckets
+#         id: list-buckets
+#         run: |
+#           BUCKETS=$(gcloud storage buckets list --format="value(name)")
+#           if [ -z "$BUCKETS" ]; then
+#             echo "No buckets found"
+#           else
+#             echo "Buckets found:"
+#             echo "$BUCKETS"
+#           fi
