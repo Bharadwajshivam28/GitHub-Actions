@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
-      packages: write  # Commented out for now
-      registry: write   # Commented out for now
       id-token: 'write'
 
     steps:
@@ -26,8 +24,8 @@ jobs:
             github.event.pull_request?.labels?.nodes?.some(label => label.name === 'dev') ? 'dev' : 'prod'
         id: build-env
 
-      - name: Authenticate with Google Cloud (if WIF not used)
-        uses: google-github-actions/auth@v1  # Remove if using WIF
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
         with:
           token_format: access_token
           workload_identity_provider: ${{ secrets.WIP }}
