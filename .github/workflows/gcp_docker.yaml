@@ -17,12 +17,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Determine Build Environment (dev or prod)
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.event.pull_request?.labels?.nodes?.some(label => label.name === 'dev') ? 'dev' : 'prod'
-        id: build-env
+      - name: Docker Build
+        run: |
+          docker build -t "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/my-app" .
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
@@ -46,9 +43,9 @@ jobs:
       - name: Docker Push (dev image on pull request with dev label)
         run: |
           docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev"
-        if: ${{ steps.build-env.outputs.build-env == 'dev' }}
+        if: ${{ github.event.type == 'pull_request' && github.event.pull_request.labels.nodes.some(label => label.name === 'dev') }}
 
-      - name: Docker Push (prod image on merge to main or push to main)
+      - name: Docker Push (prod image on merge to main)
         run: |
           docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/prod"
-        if: ${{ steps.build-env.outputs.build-env == 'prod' || github.event.type == 'push' && github.base_ref == 'main' }}
+        if: ${{ github.event.type == 'push' && github.base_ref == 'main' }}
