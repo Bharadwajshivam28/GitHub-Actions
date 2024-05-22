@@ -17,13 +17,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Docker Build Environment
+      - name: Determine Build Environment
         id: build-env
         run: |
-          if [[ "${{ github.event.pull_request.labels.*.name }}" == *"dev"* ]]; then
-            echo "build-env=dev" >> $GITHUB_ENV
+          labels=$(jq -r '.pull_request.labels[].name' <<< "${{ toJson(github.event) }}")
+          echo "Labels: $labels"
+          if echo "$labels" | grep -q "dev"; then
+            echo "build_env=dev" >> $GITHUB_ENV
           else
-            echo "build-env=prod" >> $GITHUB_ENV
+            echo "build_env=prod" >> $GITHUB_ENV
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
@@ -35,21 +37,21 @@ jobs:
           project_id: "virtual-voyage-423511-d7"
 
       - name: Docker Build (dev)
+        if: env.build_env == 'dev'
         run: |
           docker build -t "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev" .
-        if: ${{ env.build-env == 'dev' }}
 
       - name: Docker Push (dev image on pull request with dev label)
+        if: env.build_env == 'dev'
         run: |
           docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/dev"
-        if: ${{ env.build-env == 'dev' }}
 
       - name: Docker Build (prod)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           docker build -t "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/prod" .
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
       - name: Docker Push (prod image on merge to main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           docker push "us-central1-docker.pkg.dev/virtual-voyage-423511-d7/prod"
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
